@@ -23,9 +23,9 @@
         window.location.href = `${window.location.origin}?q=${encodedName}`
     }
     const params = new URLSearchParams(window.location.search);
-    const query = params.get('q');
+    let query = params.get('q');
     if (!query) {
-        throw new Error('No pathname provided');
+        query = "";
     }
     if (query.startsWith("encode")) {
         encodeAndRedirect(query);
