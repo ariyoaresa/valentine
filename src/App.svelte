@@ -1,5 +1,6 @@
 <script lang="ts">
-    import QuestionaireCard from "./lib/QuestionaireCard.svelte"
+    import QuestionaireCard from "./lib/components/QuestionaireCard.svelte"
+    import {base64Encode} from "./lib/utils/base64Parser";
 
     const images = [
         "/1.gif",
@@ -14,6 +15,14 @@
         const img = new Image();
         img.src = src;
     });
+
+    const {pathname} = window.location;
+    if (pathname.startsWith("/encode")) {
+        const name = pathname.replace("/encode", "");
+        const encodedName = base64Encode(name);
+        window.location.href = `${window.location.origin}/${encodedName}`
+    }
+
 
 </script>
 
