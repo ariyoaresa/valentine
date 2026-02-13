@@ -18,17 +18,20 @@
     });
 
     const encodeAndRedirect = (pathname: string) => {
-        const name = pathname.replace("/encode", "");
+        const name = pathname.replace("encode", "");
         const encodedName = base64Encode(name);
-        window.location.href = `${window.location.origin}/${encodedName}`
+        window.location.href = `${window.location.origin}?q=${encodedName}`
     }
-
-    const {pathname} = window.location;
-    if (pathname.startsWith("/encode")) {
-        encodeAndRedirect(pathname);
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('q');
+    if (!query) {
+        throw new Error('No pathname provided');
+    }
+    if (query.startsWith("encode")) {
+        encodeAndRedirect(query);
     }
     const errMsg = 'no conversations found'
-    if(pathname.startsWith("/decode")) {
+    if(query.startsWith("decode")) {
         const key = localStorage.getItem('lastSaved') // retrieve the key for the last saved state
         if(!key) {
             alert(errMsg)
@@ -45,7 +48,7 @@
             throw new Error(errMsg)
         }
         alert(data.conversation)
-        encodeAndRedirect(`/encode${data.loverName}`)
+        encodeAndRedirect(`encode${data.loverName}`)
     }
 
 

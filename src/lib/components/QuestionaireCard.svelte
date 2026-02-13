@@ -7,10 +7,12 @@
     const currentStep = $derived.by(
         () => steps.find((s) => s.id === currentStepId) || steps[0],
     );
-    const loversNameFromPath = $derived.by(() => {
-    //     I'm making an assumption that a base64 encoded name of the lover is passed as the path
-        let loversName = window.location.pathname.replace(/^\//, "");
-        loversName = base64Decode(loversName)
+    const loversNameFromQuery = $derived.by(() => {
+    //     I'm making an assumption that a base64 encoded name of the lover is passed as the query params q
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get('q');
+        if (!query)  return "Mi Amore";
+        const loversName = base64Decode(query)
         if (loversName !== "") return loversName;
         return "Mi Amore";
     })
@@ -18,7 +20,7 @@
         return [
             {
                 id: "0",
-                questionText: `Hey ${loversNameFromPath}! You know what time it is 😉`,
+                questionText: `Hey ${loversNameFromQuery}! You know what time it is 😉`,
                 questionImage: "/1.gif",
                 showActionButtons: true,
                 yesButtonText: "Yes, my love ☺️",
@@ -58,7 +60,7 @@
             },
             {
                 id: "closer",
-                questionText: `I want to use this lover's season to let you know how special you are to me, Everyday is valentine's day with you 🥰${loversNameFromPath}🥰`,
+                questionText: `I want to use this lover's season to let you know how special you are to me, Everyday is valentine's day with you 🥰${loversNameFromQuery}🥰`,
                 questionImage: "/6.gif",
                 showActionButtons: true,
                 yesButtonText: "Awwn, that's sweet baby",
@@ -68,7 +70,7 @@
             },
             {
                 id: "semi-final",
-                questionText: `Will you be my valentine ${loversNameFromPath}? 🥺🥺🥺`,
+                questionText: `Will you be my valentine ${loversNameFromQuery}? 🥺🥺🥺`,
                 questionImage: "/3.gif",
                 showActionButtons: true,
                 yesButtonText: "yes, and always",
@@ -78,13 +80,13 @@
             },
             {
                 id: "final-yes",
-                questionText: `I love you ❣️${loversNameFromPath}❣️, Happy Valentines!`,
+                questionText: `I love you ❣️${loversNameFromQuery}❣️, Happy Valentines!`,
                 questionImage: "/4.gif",
                 showActionButtons: false,
             },
             {
                 id: "final-no",
-                questionText: `I knew you'd say yes, Happy Valentines ${loversNameFromPath}!`,
+                questionText: `I knew you'd say yes, Happy Valentines ${loversNameFromQuery}!`,
                 questionImage: "/5.gif",
                 showActionButtons: false,
             },
@@ -124,7 +126,7 @@
       localStorage.setItem(key, JSON.stringify({
           timestamp: Date.now(),
           conversation: buildConversationFromResponse(),
-          loverName: loversNameFromPath,
+          loverName: loversNameFromQuery,
       }));
       localStorage.setItem('lastSaved', key)
     })
@@ -160,9 +162,9 @@
             const nextStep = steps.find((s) => s.id === nextStepId);
             if(!nextStep) return
             if(nextStep.id === step.yesButtonGotoStep) {
-                conversation += `${loversNameFromPath}: ${step.yesButtonText}\n`
+                conversation += `${loversNameFromQuery}: ${step.yesButtonText}\n`
             } else {
-                conversation += `${loversNameFromPath}: ${step.noButtonText}\n`
+                conversation += `${loversNameFromQuery}: ${step.noButtonText}\n`
             }
         })
         return conversation
