@@ -67,6 +67,7 @@
         place-content: center;
         background: url("/bg.jpg");
         width: 100%;
-        height: 100dvh;
+        min-height: 100dvh;
+        padding-block: 60px;
     }
 </style>
