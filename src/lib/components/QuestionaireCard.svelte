@@ -3,6 +3,7 @@
 
     let currentStepId = $state("0");
     let loverResponseLog = $state(["0"]);
+    let isMuted = $state(false);
 
     const currentStep = $derived.by(
         () => steps.find((s) => s.id === currentStepId) || steps[0],
@@ -138,17 +139,24 @@
 
     const playAudioOnAccept = (node: HTMLAudioElement) => {
         if (currentStepId !== 'final-yes' && currentStepId !== 'final-no') return;
-        if(node.paused) node.play();
-
+        
+        // Setup the audio source first
         setTimeout(() => {
             const trackNumber = Math.floor(Math.random() * 3);
             node.src = `/serenade-${trackNumber}.m4a`;
-            node.play();
+            // Only play if not muted
+            if (!isMuted) {
+                node.play().catch(() => {
+                    // Autoplay prevented
+                });
+            }
         }, 1000);
 
-        return () => {
-            if(!node.paused) node.pause()
-        }
+        // We also need to react to isMuted changes dynamically if the audio is already playing
+        // But since this action is one-off on step change, we'll handle the reactive part via the button 
+        // or a separate effect if we wanted true continuous control. 
+        // For simplicity, binding `muted` attribute on the audio tag is easier.
+        // Let's rely on svelte binding for mute status.
     }
 
     const buildConversationFromResponse = () => {
@@ -172,7 +180,17 @@
 </script>
 
 <div class="container">
-    <audio {@attach playAudioOnAccept} src="/i-love-you.mp3" class="hidden"></audio>
+    <!-- Bind muted property to isMuted state -->
+    <audio {@attach playAudioOnAccept} src="/i-love-you.mp3" class="hidden" bind:muted={isMuted}></audio>
+    
+    <button class="audio-control" onclick={() => isMuted = !isMuted} aria-label={isMuted ? "Unmute" : "Mute"}>
+        {#if isMuted}
+            🔇
+        {:else}
+            🔊
+        {/if}
+    </button>
+
     <img class="img" src="/calendar.png" alt="valentine calendar" />
     <div class="component-container">
         <p class="question-text courgette-regular">
@@ -204,9 +222,9 @@
     .container {
         display: flex;
         flex-direction: column;
-        margin-block-start: -15vh;
+        margin-block-start: -15dvh;  /* Changed to dvh */
         width: 90vw;
-        min-height: 60vh;
+        min-height: 60dvh;          /* Changed to dvh */
         background: #c475a5;
         border-radius: 10px;
         box-shadow: 0 0 22px 8px rgba(0 0 0 / 0.1);
@@ -216,6 +234,18 @@
 
     .hidden {
         display: none;
+    }
+
+    .audio-control {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 10;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7));
     }
 
     .component-container {
